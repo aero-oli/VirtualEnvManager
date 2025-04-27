@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:converters="clr-namespace:VirtualEnvManager.Converters"
         mc:Ignorable="d"
-        Title="VirtualEnv Manager" Height="600" Width="850"
+        Title="VirtualEnv Manager" Height="650" Width="1300" MinWidth="1300"
         Background="#FFF0F0F0">
   <Window.Resources>
     <converters:BytesToKbConverter x:Key="BytesToKbConverter"/>
@@ -15,6 +15,13 @@
       <Setter Property="Padding" Value="5,2"/>
       <Setter Property="Margin" Value="2"/>
       <EventSetter Event="Click" Handler="ManageEnv_Click"/>
+    </Style>
+    <!-- Style for Edit Bar Labels -->
+    <Style TargetType="Label" x:Key="EditBarLabelStyle">
+      <Setter Property="VerticalAlignment" Value="Center"/>
+      <Setter Property="HorizontalAlignment" Value="Right"/>
+      <Setter Property="Margin" Value="0,0,5,0"/>
+      <Setter Property="Padding" Value="5,0"/>
     </Style>
   </Window.Resources>
 
@@ -60,11 +67,11 @@
         </DataGrid>
       </Grid>
 
-      <!-- Management View (Adjusted Layout) -->
-      <Grid x:Name="ManagementViewGrid" Visibility="Collapsed" Background="#FFFFFFFF" Margin="-10">
+      <!-- Management View (Final Polish) -->
+      <Grid x:Name="ManagementViewGrid" Visibility="Collapsed" Background="#FFFFFFFF" Margin="-10"> 
         <Grid.RowDefinitions>
-          <RowDefinition Height="Auto"/>
-          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/> <!-- Header -->
+          <RowDefinition Height="*"/>    <!-- Content -->
         </Grid.RowDefinitions>
         
         <!-- Header Area -->
@@ -81,63 +88,57 @@
           </Grid>
         </Border>
 
-        <!-- Content Area (Packages & Inspection) -->
+        <!-- Content Area -->
         <Grid Grid.Row="1" Margin="{StaticResource PanelPadding}">
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" MinWidth="350"/>
-            <ColumnDefinition Width="10"/>
-            <ColumnDefinition Width="*" MinWidth="350"/>
+            <ColumnDefinition Width="*" MinWidth="400"/> <!-- Packages -->
+            <ColumnDefinition Width="10"/> <!-- Separator -->
+            <ColumnDefinition Width="*" MinWidth="400"/> <!-- Inspection -->
           </Grid.ColumnDefinitions>
 
           <!-- Packages Section -->
-          <Grid Grid.Column="0" Margin="0,0,5,0">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <TextBlock Grid.Row="0" Text="Packages" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10"/>
-            <Grid Grid.Row="1" Margin="0,0,0,10">
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-              </Grid.ColumnDefinitions>
-              <Button Grid.Column="0" Content="Refresh" Click="RefreshPackages_Click"/>
-              <TextBox Grid.Column="1" x:Name="PackageNameTextBox" Tag="Enter package name" Margin="5,0,5,0" VerticalAlignment="Center"/>
-              <Button Grid.Column="2" Content="Install" Click="InstallPackage_Click"/>
-              <Button Grid.Column="3" Content="Remove" Click="RemovePackage_Click"/>
-              <Button Grid.Column="4" Content="Upgrade" Click="UpgradePackage_Click"/>
+          <GroupBox Grid.Column="0" Header="Packages" Padding="10" FontWeight="SemiBold">
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/> <!-- Actions -->
+                <RowDefinition Height="*"/>    <!-- Grid -->
+              </Grid.RowDefinitions>
+              <!-- Action Bar -->
+              <Grid Grid.Row="0" Margin="0,0,0,10">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/> <!-- Refresh -->
+                  <ColumnDefinition Width="*" MinWidth="150"/> <!-- Text Box -->
+                  <ColumnDefinition Width="Auto"/> <!-- Install -->
+                  <ColumnDefinition Width="Auto"/> <!-- Remove -->
+                  <ColumnDefinition Width="Auto"/> <!-- Upgrade -->
+                </Grid.ColumnDefinitions>
+                <Button Grid.Column="0" Content="Refresh" Click="RefreshPackages_Click" VerticalAlignment="Center"/>
+                <TextBox Grid.Column="1" x:Name="PackageNameTextBox" Tag="Enter package name" Margin="5,0" VerticalAlignment="Center" />
+                <Button Grid.Column="2" Content="Install" Click="InstallPackage_Click" VerticalAlignment="Center"/>
+                <Button Grid.Column="3" Content="Remove" Click="RemovePackage_Click" VerticalAlignment="Center"/>
+                <Button Grid.Column="4" Content="Upgrade" Click="UpgradePackage_Click" VerticalAlignment="Center"/>
+              </Grid>
+              <!-- DataGrid -->
+              <DataGrid Grid.Row="1" x:Name="PackageDataGrid">
+                <DataGrid.Columns>
+                  <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
+                  <DataGridTextColumn Header="Version" Binding="{Binding Version}" Width="*"/>
+                </DataGrid.Columns>
+              </DataGrid>
             </Grid>
-            <DataGrid Grid.Row="2" x:Name="PackageDataGrid">
-              <DataGrid.Columns>
-                <DataGridTextColumn Header="Name" Binding="{Binding Name}" Width="*"/>
-                <DataGridTextColumn Header="Version" Binding="{Binding Version}" Width="*"/>
-              </DataGrid.Columns>
-            </DataGrid>
-          </Grid>
+          </GroupBox>
 
           <!-- Separator -->
-          <GridSplitter Grid.Column="1" Width="10" Background="Transparent" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+          <GridSplitter Grid.Column="1" Width="5" Background="#FFD6D6D6" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" ShowsPreview="True"/>
 
           <!-- Inspection Section -->
-          <Grid Grid.Column="2" Margin="5,0,0,0">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="*"/>
-              <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <TextBlock Grid.Row="0" Text="Activation Variables" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10"/>
-            
-            <Grid Grid.Row="1">
+          <GroupBox Grid.Column="2" Header="Activation Variables" Padding="10" FontWeight="SemiBold">
+            <Grid>
               <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/> <!-- Refresh -->
+                <RowDefinition Height="*"/>    <!-- Grid -->
+                <RowDefinition Height="Auto"/> <!-- Edit Bar -->
               </Grid.RowDefinitions>
-              <!-- Action Buttons -->
               <Button Grid.Row="0" Content="Refresh" Click="RefreshMetadata_Click" HorizontalAlignment="Left" Margin="0,0,0,10"/>
               <!-- DataGrid -->
               <DataGrid Grid.Row="1" x:Name="VarsDataGrid">
@@ -146,29 +147,29 @@
                   <DataGridTextColumn Header="Value" Binding="{Binding Value}" Width="2*"/>
                 </DataGrid.Columns>
               </DataGrid>
+              <!-- Edit Bar -->
+              <Grid Grid.Row="2" Margin="0,10,0,0">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/> <!-- Key Label -->
+                  <ColumnDefinition Width="*" MinWidth="100"/> <!-- Key TextBox -->
+                  <ColumnDefinition Width="Auto"/> <!-- Value Label -->
+                  <ColumnDefinition Width="*" MinWidth="150"/> <!-- Value TextBox -->
+                  <ColumnDefinition Width="Auto"/> <!-- Set Button -->
+                  <ColumnDefinition Width="Auto"/> <!-- Remove Button -->
+                </Grid.ColumnDefinitions>
+                <Label Grid.Column="0" Content="Key:" Style="{StaticResource EditBarLabelStyle}"/>
+                <TextBox Grid.Column="1" x:Name="VarKeyTextBox" Tag="Variable name" VerticalAlignment="Center"/>
+                <Label Grid.Column="2" Content="Value:" Style="{StaticResource EditBarLabelStyle}"/>
+                <TextBox Grid.Column="3" x:Name="VarValueTextBox" Tag="Variable value" VerticalAlignment="Center"/>
+                <Button Grid.Column="4" Content="Set" Click="SetVar_Click" VerticalAlignment="Center"/>
+                <Button Grid.Column="5" Content="Remove" Click="RemoveVar_Click" VerticalAlignment="Center"/>
+              </Grid>
             </Grid>
-            <!-- Edit Bar -->
-            <Grid Grid.Row="2" Margin="0,10,0,0">
-              <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
-                <ColumnDefinition Width="Auto"/>
-              </Grid.ColumnDefinitions>
-              <Label Grid.Column="0" Content="Key:" VerticalAlignment="Center" Margin="0,0,5,5"/>
-              <TextBox Grid.Column="1" x:Name="VarKeyTextBox" Tag="Variable name" Margin="0,0,5,0"/>
-              <Label Grid.Column="2" Content="Value:" VerticalAlignment="Center" Margin="5,0,5,5"/>
-              <TextBox Grid.Column="3" x:Name="VarValueTextBox" Tag="Variable value" Margin="0,0,5,0"/>
-              <Button Grid.Column="4" Content="Set" Click="SetVar_Click"/>
-              <Button Grid.Column="5" Content="Remove" Click="RemoveVar_Click"/>
-            </Grid>
-          </Grid>
+          </GroupBox>
         </Grid>
       </Grid>
       
-      <!-- Settings View (Initially Hidden) -->
+      <!-- Settings View -->
       <Grid x:Name="SettingsViewGrid" Visibility="Collapsed" Background="#FFFFFFFF" Margin="-10">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
@@ -197,13 +198,13 @@
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <!-- WORKON_HOME Setting -->
-            <Label Grid.Row="0" Grid.Column="0" Content="WORKON_HOME Path:" VerticalAlignment="Center" Margin="0,0,10,5"/>
-            <TextBox Grid.Row="0" Grid.Column="1" x:Name="WorkonHomeTextBox" Tag="Path to virtual environments directory"/>
-            <Button Grid.Row="0" Grid.Column="2" Content="Save" Click="SaveSettings_Click"/>
+            <Label Grid.Row="0" Grid.Column="0" Content="WORKON_HOME Path:" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <TextBox Grid.Row="0" Grid.Column="1" x:Name="WorkonHomeTextBox" Tag="Path to virtual environments directory" VerticalAlignment="Center"/>
+            <Button Grid.Row="0" Grid.Column="2" Content="Save" Click="SaveSettings_Click" VerticalAlignment="Center"/>
           </Grid>
           
           <!-- Other Commands (Can be moved or kept here) -->
-          <TextBlock Text="Wrapper Commands" FontSize="14" FontWeight="SemiBold" Margin="0,0,0,10"/>
+          <TextBlock Text="Wrapper Commands" FontSize="14" FontWeight="SemiBold" Margin="0,15,0,10"/>
           <WrapPanel Orientation="Horizontal">
             <Button Content="mkproject" Click="MkProject_Click"/>
             <Button Content="lssitepackages" Click="LsSitePackages_Click" ToolTip="Requires an environment to be selected back in the Explorer view"/>
