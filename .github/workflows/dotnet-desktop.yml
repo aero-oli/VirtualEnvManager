@@ -1,0 +1,70 @@
+# .github/workflows/dotnet-desktop.yml
+
+# This workflow uses actions that are not certified by GitHub.
+# They are provided by a third-party and are governed by
+# separate terms of service, privacy policy, and support
+# documentation.
+
+# This workflow will build a WPF desktop application
+# built on .NET 6.
+
+name: .NET Desktop Build
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        configuration: [Debug, Release]
+
+    runs-on: windows-latest  # Use Windows runner for WPF projects
+
+    env:
+      # Path to the WPF project file relative to the repository root
+      Project_Path: VirtualEnvManager.csproj
+      # Output path for the build artifacts
+      Output_Path: ./publish
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0 # Required for GitVersion if used later
+
+    # Install the .NET 6 workload
+    - name: Install .NET 6
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: 6.0.x # Match project's target framework
+
+    # Add MSBuild to the PATH
+    # (dotnet build command uses MSBuild)
+    - name: Setup MSBuild.exe
+      uses: microsoft/setup-msbuild@v2
+
+    # Restore dependencies for the project
+    - name: Restore dependencies
+      run: dotnet restore $env:Project_Path
+      env:
+        Configuration: ${{ matrix.configuration }}
+
+    # Build the WPF application
+    - name: Build application
+      run: dotnet build $env:Project_Path --configuration $env:Configuration --no-restore /p:OutDir=$env:Output_Path/${{ matrix.configuration }}/
+      env:
+        Configuration: ${{ matrix.configuration }}
+
+    # Upload the build output as an artifact
+    # This contains the executable and necessary DLLs
+    - name: Upload build artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        # Name the artifact uniquely based on the configuration
+        name: Build Output (${{ matrix.configuration }})
+        # Path to the folder containing the build output
+        path: ${{ env.Output_Path }}/${{ matrix.configuration }}/
